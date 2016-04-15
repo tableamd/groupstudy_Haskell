@@ -1,1 +1,3 @@
-# groupstudy_Haskell
+# groupstudy_Haskell  
+
+Hello world
