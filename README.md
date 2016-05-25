@@ -370,7 +370,9 @@ case式は何か式の途中でパターンマッチングを行う際に便利�
 
 
 ##説明に使った幾つかの関数
+
 where失敗な関数 whereFail.hs
+
     whereFail 1 = failMessage1
     whereFail 2 = failMessage2
     whereFail a = "number!"
@@ -378,6 +380,7 @@ where失敗な関数 whereFail.hs
               failMessage2 = "fail2"
 
 お助けな関数nest_where.hs
+
     関数 :: Int -> Int -> Int
     関数 a b = お助け関数1 a b
        where temp0 = 100
