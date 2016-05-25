@@ -367,3 +367,46 @@ case式は何か式の途中でパターンマッチングを行う際に便利�
         where what [] = "empty."
               what [x] = "a singleton list."
               what xs = "a longer list."
+
+
+##説明に使った幾つかの関数
+where失敗な関数 whereFail.hs
+    whereFail 1 = failMessage1
+    whereFail 2 = failMessage2
+    whereFail a = "number!"
+        where failMessage1 = "fail1"
+              failMessage2 = "fail2"
+
+お助けな関数nest_where.hs
+    関数 :: Int -> Int -> Int
+    関数 a b = お助け関数1 a b
+       where temp0 = 100
+             お助け関数1 a' b' = お助け関数2 a' b' + temp0
+                 where temp1 = 10
+                       temp2 = 20
+                       お助け関数2 a'' b'' = temp1 + temp2 + a'' + b''
+
+リッチな？関数 rich.hs
+
+    hoge 1 = tmp1
+      where tmp1 = "aaa"
+    
+    hoge 2 = myfunc tmp
+      where myfunc "fizz" = "fizz"
+            myfunc "buzz" = "buzz"
+            tmp = "fizz"
+    
+    hoge 3 =
+      let foo = "foo"
+          bar = "bar"
+      in foo ++ bar
+    
+    hoge a
+      | a == 10  = let aaa="aaa" in "10 " ++ aaa ++ " " ++ tmp
+      | a == 20  = "20"
+      | otherwise = "other" ++ tmp ++ tmp1 ++ case a of 21 -> " 21"
+                                                        22 -> " 22"
+                                                        otherwise -> " other"
+      where tmp = "fuga"
+            tmp1 = "moge"
+
