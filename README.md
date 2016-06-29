@@ -566,3 +566,171 @@ __\x y -> (x > 0) && (y > 0) || (x <= 0) && (y <= 0)__
     [[],[2],[2,2],[1,2,3],[3,5,4,3],[5,4,5,4,4]]  
 
 凄え！``compare `on` length``、これなんてもう英語そのものじゃん！ここでの`on`の働きが分からないなら、``compare `on` length``は``\x y -> length x `compare` length y``と同等の物です。By関数を対等関数として使いたいなら、``(==) `on` something``を使い、順序関数として使いたいなら、``compare `on` something``を使って下さい。
+
+
+##Data.Char
+
+`Data.Char`は読んで字の如くなモジュールです。文字を扱う関数を大量に入れます。文字を扱う関数は文字列のフィルタリングとかマッピングに便利で、何故かと言うとStringは[Char]だからです。
+
+`Data.Char`に含まれる関数は1文字を引数に取り、私達にある推測は正しいのか否かを伝えてくれます。それはこんな感じです：
+
+###isControl
+文字が制御文字かどうかをチェックする。
+
+###isSpace
+文字がスペース、タブ、ニューラインかどうかをチェックする。
+
+###isLower
+文字が小文字かどうかをチェックする。
+
+###isUpper
+文字が大文字かどうかをチェックする。
+
+###isAlpha
+文字がアルファベット(a-zA-Z)かどうかをチェックする。
+
+###isAlphaNum
+文字がアルファベットまたは数字(a-zA-Z0-9)かどうかをチェックする。
+
+###isPrint
+文字が表示可能かどうかをチェックする。制御文字は表示できないのでFalse。
+
+###isDigit
+文字が数字(0-9)かどうかをチェックする。
+
+###isOctDigit
+文字が8進数(0-7)かどうかをチェックする。
+
+###isHexDigit
+文字が16進数(0-9a-fA-F)かどうかをチェックする
+
+###isLetter
+文字が数字や記号制御文字以外である事をチェックする。a-zA-Zを始めとし、ギリシャ文字やアラビア語、ヘブライ語、日本語等にも使える。
+
+###isMark
+アクセント記号がついたユニコードの文字にTrueを返す。フランス人ならお使いください。
+
+###isNumber
+文字が数字かどうかをチェックする。ギリシャ数字などにも使える。漢数字とか、壱、弐みたいな文字には使えませんでした。
+
+###isPunctuation
+ユニコード文字も含め、文字が句読点かどうかをチェックする。
+
+###isSymbol
+ユニコード文字も含め、文字が数学の記号かどうかをチェックする。ちなみに、`isSymbol '-'`がFalseになるのが少し気持ち悪い。
+
+###isSeparator
+半角スペース、全角スペースに対してTrueを返す。
+
+###isAscii
+文字がアスキーコード表のNUL(\0)からDEL(\127)内にあるかどうかをチェックする。
+
+###islatin1
+文字がISO 8859-1、ラテンアルファベットの文字コード表の最初の256文字内にあるかどうかをチェックする。
+
+###isAsciiUpper
+文字がA-Zかをチェックする。
+
+###isAsciiLower
+文字がa-zかをチェックする。
+
+これら全ての関数の型シグネチャは `Char -> Bool`です。あなたがこれらの関数を使うのは、文字列のフィルターとかそんな感じの事をしたい時でしょう。例えば、英数字のみで構成されるユーザ名を扱うプログラムを作りたい時を考えてみましょう。私達は`Data.List`の`all`を`Data.Char`と組み合わせて、ユーザ名が正しいかどうかをチェックできます。
+
+    ghci> all isAlphaNum "bobby283"  
+    True  
+    ghci> all isAlphaNum "eddy the fish!"  
+    False  
+
+かっこいい！`all`っていうのは関数とリストを引数に取り、リストの全ての要素にて引数の関数がTrueを返したら、最終的にTrueを返す関数です。
+
+私達は、`isSpace`を使って`Data.List`の`words`を再現できます。
+
+    ghci> words "hey guys its me"  
+    ["hey","guys","its","me"]  
+    ghci> groupBy ((==) `on` isSpace) "hey guys its me"  
+    ["hey"," ","guys"," ","its"," ","me"]
+
+確かに`words`と似たような感じの動作をしていますが、" "がリストの中に残っていますね。どうしたら良いでしょうか？そうです、この邪魔者をフィルターしてしまえばいいのです。
+
+    ghci> filter (not . any isSpace) . groupBy ((==) `on` isSpace) $ "hey guys its me"  
+    ["hey","guys","its","me"]  
+
+`Data.Char`は`Ordering`の様なデータタイプも提供します。`Ordering`型が`LT`、`EQ`、`GT`という値を持っています。これらは列挙型の一種であり、2要素を比較した結果を述べています。`GeneralCategory`型も同様に列挙型の一種です。これは、文字を幾つかのカテゴリーに分類し、それを私達に伝えてくれます。文字がGeneralCategory型のどの値に対応するかを教えてくれる関数は、`generalCategory `です。その型シグネチャは`generalCategory :: Char -> GeneralCategory`です。31カテゴリーを含みます。
+
+    ghci> generalCategory ' '  
+    Space  
+    ghci> generalCategory 'A'  
+    UppercaseLetter  
+    ghci> generalCategory 'a'  
+    LowercaseLetter  
+    ghci> generalCategory '.'  
+    OtherPunctuation  
+    ghci> generalCategory '9'  
+    DecimalNumber  
+    ghci> map generalCategory " \t\nA9?|"  
+    [Space,Control,Control,UppercaseLetter,DecimalNumber,OtherPunctuation,MathSymbol]
+
+`GeneralCategory `型は`Eq`型クラスの一部なので、`generalCategory c == Space`みたいに比較も可能です。
+
+###toUpper
+アルファベットについて、小文字を大文字に変えてくれる。スペースとか数字、大文字等は変わらないでそのまま。
+
+###toLower
+アルファベットについて、大文字を小文字に変えてくれる。
+
+###toTitle
+文章の先頭の文字を大文字にする時に使う。
+
+###digitToInt
+文字を数字に変える。具体的には'0'..'9'、'a'..'f'(もしくは'A'..'F')が0..9、10..15に変わる。
+
+    ghci> map digitToInt "34538"  
+    [3,4,5,3,8]  
+    ghci> map digitToInt "FF85AB"  
+    [15,15,8,5,10,11]  
+
+###intToDigit
+これはdigitToIntの逆関数。ただし、10..15は'a'..'f'になる。
+
+###ord
+受け取った一文字の文字コードを返す。`chr`は文字コードを受け取ったらその対象の文字を返す。
+
+    ghci> ord 'a'  
+    97  
+    ghci> chr 97  
+    'a'  
+    ghci> map ord "abcdefgh"  
+    [97,98,99,100,101,102,103,104]
+
+ある2つの要素の`ord`による結果の違いは、ユニコード表においてその2つの文字がどの程度離れているかを表しています。
+
+シーザー暗号はメッセージを暗号化する古典的な方法であり、メッセージ中のそれぞれの文字について固定値分アルファベット中の自身の位置からずらすという物です。文字をアルファベットのみに限らないなら、自作シーザー暗号関数は簡単に作れます。
+
+    encode :: Int -> String -> String  
+    encode shift msg = 
+        let ords = map ord msg  
+            shifted = map (+ shift) ords  
+        in  map chr shifted
+
+一番最初に、文字列中の文字を数字に変えます。その後、shiftを各数字に足し、再び文字に戻します。もしあなたがHaskell警察ならこの関数は`map (chr . (+ shift) . ord) msg`とも書けます。
+
+    ghci> encode 3 "Heeeeey"  
+    "Khhhhh|"  
+    ghci> encode 4 "Heeeeey"  
+    "Liiiii}"  
+    ghci> encode 1 "abcd"  
+    "bcde"  
+    ghci> encode 5 "Marry Christmas! Ho ho ho!"  
+    "Rfww~%Hmwnxyrfx&%Mt%mt%mt&"  
+
+復号に関しては、各文字の現在の位置から固定値分を戻すだけです。
+
+    decode :: Int -> String -> String  
+    decode shift msg = encode (negate shift) msg  
+
+    ghci> encode 3 "Im a little teapot"  
+    "Lp#d#olwwoh#whdsrw"  
+    ghci> decode 3 "Lp#d#olwwoh#whdsrw"  
+    "Im a little teapot"  
+    ghci> decode 5 . encode 5 $ "This is a sentence"  
+    "This is a sentence"   
