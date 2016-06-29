@@ -413,3 +413,156 @@ where失敗な関数 whereFail.hs
       where tmp = "fuga"
             tmp1 = "moge"
 
+
+
+
+##Data.List前回の続き
+さて、今回は前回の続きからスタートになります。
+
+###lines
+これは便利な関数で、ファイルとか何処かからの入力を処理するのに使えます。引数に文字列を取り、文字列の各行をバラバラにしたリストを返します。
+
+    ghci> lines "first line\nsecond line\nthird line"  
+    ["first line","second line","third line"]  
+
+`\n`はUNIXの改行を表す文字です(Windowsなら`¥n`)。＼はHaskellの文字列や文字では特別な意味を持ちます(エスケープシーケンスですね)。
+
+###unlines
+unlinedはlinesの逆関数です。これは文字列のリストを引数に取り、各要素を`\n`でくっつけたものを返します。
+
+    ghci> unlines ["first line", "second line", "third line"]  
+    "first line\nsecond line\nthird line\n"  
+
+###wordsとunwords
+wordsはテキストを受け取りスペースや\n、\t等が含まれていたらそこで区切って単語のリストを返します。unwordsはこの逆を行い、単語のリストを引数に取りそれをスペースでくっつけます。
+
+    ghci> words "hey these are the words in this sentence"  
+    ["hey","these","are","the","words","in","this","sentence"]
+    ghci> words "hey these           are    the words in this\nsentence"  
+    ["hey","these","are","the","words","in","this","sentence"]  
+    ghci> unwords ["hey","there","mate"]  
+    "hey there mate"  
+
+###nub
+もう`nub`には軽く触れましたね。これはリストを受け取り、ダブった要素を取り除いて、雪の結晶の様に同じものの存在しない要素を持ったリストを返します。
+
+この関数ですが、変な名前ですよね。"nub"は小さなランプとか、何かの必要不可欠な部分という意味を持っている事が分かります。私の考えですが、Haskellの開発者は古い人達の言葉の替わりに、真の意味を持つ言葉を関数名に使ったのでしょう。
+
+    ghci> nub [1,2,3,4,3,2,1,2,3,4,3,2,1]  
+    [1,2,3,4] 
+    ghci> nub "Lots of words and stuff"  
+    "Lots fwrdanu"  
+
+###delete
+`delete`は1つの要素とリストを取り、リストの中で最初に見つかったその1つの要素と等しい要素を取り除いたものを返します。
+
+    ghci> delete 'h' "hey there ghang!"  
+    "ey there ghang!"  
+    ghci> delete 'h' . delete 'h' $ "hey there ghang!"  
+    "ey tere ghang!"  
+    ghci> delete 'h' . delete 'h' . delete 'h' $ "hey there ghang!"  
+    "ey tere gang!"  
+
+ちなみに次のコードも動きます。
+
+    ghci> take 20 $ delete 10 [1..]
+    [1,2,3,4,5,6,7,8,9,11,12,13,14,15,16,17,18,19,20,21]
+
+###\\\
+`\\`は差集合を求めるのに用いる関数です。要するに、xs \\\\ ysとしたら、xsからysに含まれる要素を取り除いて再びリストを返します。
+
+    ghci> [1..10] \\ [2,5,9]  
+    [1,3,4,6,7,8,10]  
+    ghci> "Im a big baby" \\ "big"  
+    "Im a  baby"  
+
+###union
+`union`は和集合を返します。引数の2番目のリストを走査し、もし引数の1番目のリストにまだ含まれていない要素があったら追加します。ご覧の通り、ダブった要素は2番目のリストから取り除かれています。
+
+    ghci> "hey man" `union` "man what's up"  
+    "hey manwt'sup"  
+    ghci> [1..7] `union` [5..10]  
+    [1,2,3,4,5,6,7,8,9,10]  
+
+###intersect
+`intersect`は引数にて受け取った二つのリストの共通した要素を返します。
+
+    ghci> [1..7] `intersect` [5..10]  
+    [5,6,7]  
+
+###insert
+`insert`は1要素とソートされている様なリストを受け取り、その1要素がまだリストのその次の要素よりも小さいか等しいかどちらかである先頭から最も近い位置に挿入をします。言い換えるならば、`insert`はリストの先頭から走査を開始し、指定した1要素よりも大きいか等しい要素が現れるまで走査を続け、現れたら指定した1要素をその要素の前に追加します。
+
+    ghci> insert 4 [3,5,1,2,8,2]  
+    [3,4,5,1,2,8,2]  
+    ghci> insert 4 [1,3,4,4,1]  
+    [1,3,4,4,4,1]  
+
+実行結果を確認すると、1つ目の実行結果では`4`は`3`の直後かつ`5`の直前に入っており、2つ目の実行結果では`4`は`3`と`4`の間に入っています。
+
+もし、`insert`をソート済みのリスト(全部ソートされている物でも一部ソートされている物でも)に適応したら、結果もソート済みの物となります。
+
+    ghci> insert 4 [1,2,3,5,6,7]  
+    [1,2,3,4,5,6,7]  
+    ghci> insert 'g' $ ['a'..'f'] ++ ['h'..'z']  
+    "abcdefghijklmnopqrstuvwxyz"  
+    ghci> insert 3 [1,2,4,3,2,1]  
+    [1,2,3,4,3,2,1]
+
+`length`、`take`、`drop`、`splitAt`、`!!`、`replicate`といった関数の共通点として、`Int`型の引数をパラメータの1つに取ります。(もしくは`Int`型の変数を返します)ただ、`Integral`や`Num`といった型クラスに所属する様々な型を引数に取れたほうが一般的だし、使うのに適します。でも、Haskellの開発者達は歴史的な理由でこの様にしました。これらを修正する事はきっと既存のコードの大部分を破壊するでしょう。これが、`Data.List`がさらに一般的な関数である`genericLength`、` genericTake`、`genericDrop`、`genericSplitAt`、`genericIndex`、`genericReplicate`を持っている理由となります。
+
+例えば、`length`は型シグネチャとして`length :: [a] -> Int`を持っています。もし、数値のリストの要素の平均を求めるなら、
+
+`let xs = [1..6] in sum xs / length xs`
+
+って書きそうですけど、これは型エラーを引き起こし、それは`/`が`Int`型を扱えない事が理由です。一方で、`genericLength`の型シグネチャは`genericLength :: (Num a) => [b] -> a`です。`Num`は小数の様に振る舞う事ができるので、
+
+`let xs = [1..6] in sum xs / genericLength xs`
+
+こう書けば平均を正しく求める事ができます。
+
+`nub`、`delete`、`union`、`intersect`、`group`といった関数にも全てさらに一般的な関数が存在しており、それらの名前は`nubBy`、`deleteBy`、`unionBy`、`intersectBy`、`groupBy`となっています。
+
+普通の関数とByがついた関数の違いは型シグネチャを見れば一目瞭然です。(groupとgroupByを例に挙げると以下の通り)
+
+    ghci>:t group
+    group :: Eq a => [a] -> [[a]]
+    ghci>:t groupBy
+    groupBy :: (a -> a -> Bool) -> [a] -> [[a]]
+    ghci>
+
+Byがついた関数の方は比較用の関数を引数の一番目に取ることが分かります。`group`っていうのは`groupBy (==)`と同じです。
+
+例えば、毎秒ごとの値を持ったリストがあるとしましょう。そして、負の部分と正の部分に分けたいとします。もし、`group`を使ったら、等しい値が続いている部分しか分けられませんでした。私達が欲しいものは、そのリストの値を負かそうでないかで分けたグループです。そこで、`groupBy`が登場です！関数に与える、比較用の関数は同じ型の2引数を取り、基準を満たしていれば`True`を返します。
+
+    ghci> let values = [-4.3, -2.4, -1.2, 0.4, 2.3, 5.9, 10.5, 29.1, 5.3, -2.4, -14.5, 2.9, 2.3]  
+    ghci> groupBy (\x y -> (x > 0) == (y > 0)) values  
+    [[-4.3,-2.4,-1.2],[0.4,2.3,5.9,10.5,29.1,5.3],[-2.4,-14.5],[2.9,2.3]]
+
+これより、私達は明確にどの部位が正か負なのかを確認できます。groupBy関数の引数に与えた関数は、2引数を取り、リストの並んだ2つの値がどちらも正か負かの時に`True`を返す関数です。この引数の関数は次の様にも書けます。
+
+__\x y -> (x > 0) && (y > 0) || (x <= 0) && (y <= 0)__
+
+でも、最初のほうが読みやすいと私は思います。
+
+そこで、__on__という__Data.Function__に含まれている関数を使う事でさらに明確に関数を書く事ができます。
+
+    on :: (b -> b -> c) -> (a -> b) -> a -> a -> c  
+    f `on` g = \x y -> f (g x) (g y)
+
+``(==) `on` (> 0)``と書けば、`\x y -> (x > 0) == (y > 0)`と同じ様な関数を返してくれます。Byがついた関数において、`on`は多用されます。
+
+    ghci> groupBy ((==) `on` (> 0)) values  
+    [[-4.3,-2.4,-1.2],[0.4,2.3,5.9,10.5,29.1,5.3],[-2.4,-14.5],[2.9,2.3]] 
+
+先程の例ですが、凄い読みやすくなりましたね！
+
+ここまでの例と同様に、`sort`、`insert`、`maximum`、`minimum`にもさらに一般的な関数が存在します。`groupBy`の様な関数は、2要素が等しい時を特定する関数を引数に取りました。`sortBy`、`insertBy`、`maximumBy`、`minimumBy`は1つ目の引数が、2つ目の引数よりも大きいか、小さいか、等しいかを特定する関数を引数に取ります。`sortBy`の型シグネチャを確認してみると、`sortBy :: (a -> a -> Ordering) -> [a] -> [a]`です。もし以前の事を覚えているのならば、`Ordering`型は`LT`、`EQ`、`GT`を持ちましたね。`sort`は`sortBy compare`と同様の物であり、compare関数は`Ord`型クラスに所属している型を持つ2引数を取り、その戻り値は`Ordering`型の値だからです。
+
+リストは、辞書的に比較できる場合はその要素の比較ができます(1、2、3とかa、b、cとか…)。でも、リストの中にリストが入っていて、リストの各要素では無く、ネスト化されているリストの長さでソートしたい場合はどうするのでしょうか？はい、お察しの通り、`sortBy`を使いましょう。
+
+    ghci> let xs = [[5,4,5,4,4],[1,2,3],[3,5,4,3],[],[2],[2,2]]  
+    ghci> sortBy (compare `on` length) xs  
+    [[],[2],[2,2],[1,2,3],[3,5,4,3],[5,4,5,4,4]]  
+
+凄え！``compare `on` length``、これなんてもう英語そのものじゃん！ここでの`on`の働きが分からないなら、``compare `on` length``は``\x y -> length x `compare` length y``と同等の物です。By関数を対等関数として使いたいなら、``(==) `on` something``を使い、順序関数として使いたいなら、``compare `on` something``を使って下さい。
