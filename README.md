@@ -425,7 +425,7 @@ where失敗な関数 whereFail.hs
     ghci> lines "first line\nsecond line\nthird line"  
     ["first line","second line","third line"]  
 
-`\n`はUNIXの改行を表す文字です(Windowsなら`¥n`)。＼はHaskellの文字列や文字では特別な意味を持ちます(エスケープシーケンスですね)。
+`\n`はUNIXの改行を表す文字です(日本語環境なら`¥n`)。＼はHaskellの文字列や文字では特別な意味を持ちます(エスケープシーケンスですね)。
 
 ###unlines
 unlinesはlinesの逆関数です。これは文字列のリストを引数に取り、各要素を`\n`でくっつけたものを返します。
