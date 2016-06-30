@@ -428,7 +428,7 @@ where失敗な関数 whereFail.hs
 `\n`はUNIXの改行を表す文字です(Windowsなら`¥n`)。＼はHaskellの文字列や文字では特別な意味を持ちます(エスケープシーケンスですね)。
 
 ###unlines
-unlinedはlinesの逆関数です。これは文字列のリストを引数に取り、各要素を`\n`でくっつけたものを返します。
+unlinesはlinesの逆関数です。これは文字列のリストを引数に取り、各要素を`\n`でくっつけたものを返します。
 
     ghci> unlines ["first line", "second line", "third line"]  
     "first line\nsecond line\nthird line\n"  
